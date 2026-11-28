@@ -28,6 +28,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.util.Locale
+import kotlinx.coroutines.*
+import org.json.JSONArray
+import org.json.JSONObject
+import java.net.HttpURLConnection
+import java.net.URL
 
 class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
     private var tts: TextToSpeech? = null
@@ -58,7 +63,7 @@ private data class Message(val body: String, val user: Boolean)
 private fun BlueAIApp(speak: (String)->Unit, requestCapture: ()->Unit) {
     val navy = Color(0xFF071522); val blue = Color(0xFF48B8FF); val panel = Color(0xFF10283B)
     var input by remember { mutableStateOf("") }
-    var status by remember { mutableStateOf("Ready") }
+    var status by remember { mutableStateOf("Ready") }\n    var apiKey by remember { mutableStateOf("") }\n    val scope = rememberCoroutineScope()
     val messages = remember { mutableStateListOf(Message("Hello! I'm BlueAI. This prototype chats offline, speaks replies, and can request screen-capture permission.", false)) }
     val speechLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) input = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull().orEmpty()
@@ -112,7 +117,7 @@ private fun BlueAIApp(speak: (String)->Unit, requestCapture: ()->Unit) {
                     Button(onClick=::send, colors=ButtonDefaults.buttonColors(containerColor=blue)) { Text("Send",color=navy) }
                 }
                 Spacer(Modifier.height(6.dp))
-                Text("Screen capture is not analyzed or transmitted. Local AI model not included yet.", color=Color.Gray,fontSize=10.sp)
+                Column {\n                    Text("OpenAI API key (required)", color=blue, fontSize=12.sp)\n                    BasicTextField(apiKey, { apiKey=it }, Modifier.fillMaxWidth().background(panel,RoundedCornerShape(12.dp)).padding(10.dp), textStyle=TextStyle(color=Color.White,fontSize=13.sp), cursorBrush=SolidColor(blue), decorationBox={inner->Box { if(apiKey.isEmpty()) Text("Paste API key here",color=Color.Gray); inner() }})\n                    Text("Uses gpt-4o-mini. API usage may be billed. Screen analysis is not yet implemented.", color=Color.Gray,fontSize=10.sp)\n                }
             }
         }
     }
